@@ -16,10 +16,12 @@ class CreditService(
 ) : ICreditService {
   override fun save(credit: Credit): Credit {
     this.validDayFirstInstallment(credit.dayFirstInstallment)
-    credit.apply {
-      customer = customerService.findById(credit.customer?.id!!)
-    }
-    return this.creditRepository.save(credit)
+
+    credit.customer = credit.customer?.id?.let {
+      customerService.findById(it)
+    } ?: throw IllegalArgumentException("Customer ID cannot be null")
+
+    return creditRepository.save(credit)
   }
 
   override fun findAllByCustomer(customerId: Long): List<Credit> =
